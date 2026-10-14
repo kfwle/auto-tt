@@ -5,7 +5,7 @@
 ## Деплой:
 
 ```bash
-https://raw.githubusercontent.com/kfwle/auto-tt/refs/heads/main/trusttunnel-auto.sh
+curl https://raw.githubusercontent.com/kfwle/auto-tt/refs/heads/main/trusttunnel-auto.sh | bash
 ```
 
 ## Авто-удаление мне лень делать
