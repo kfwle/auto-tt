@@ -190,6 +190,14 @@ fi
 [ -z "$VPN_USER" ] && { error "Пустой логин"; exit 1; }
 [ -z "$VPN_PASS" ] && { error "Пустой пароль"; exit 1; }
 
+# IP нельзя использовать как SNI/hostname (rustls режет IP в SNI -> EOF).
+# Если ввели IP, для TLS используем <IP>.nip.io, а коннект идёт всё равно на IP.
+TLS_HOST="$SERVER_HOST"
+if printf '%s' "$SERVER_HOST" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+  TLS_HOST="$SERVER_HOST.nip.io"
+  warn "Введён IP, для TLS-hostname использую $TLS_HOST (иначе клиент/CURL получит EOF)."
+fi
+
 echo "----------------------------------------"
 info "Порт:      $PORT"
 info "Логин:     $VPN_USER"
@@ -228,7 +236,7 @@ $SUDO systemctl stop trusttunnel 2>/dev/null || true
 $SUDO ./setup_wizard -m non-interactive \
   -a "0.0.0.0:$PORT" \
   -c "$VPN_USER:$VPN_PASS" \
-  -n "$SERVER_HOST" \
+  -n "$TLS_HOST" \
   --lib-settings vpn.toml \
   --hosts-settings hosts.toml \
   --cert-type self-signed
